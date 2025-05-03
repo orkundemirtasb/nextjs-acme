@@ -9,7 +9,30 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const sql = postgres(process.env.POSTGRES_URL!, { 
+  ssl: 'require',
+  connect_timeout: 30,
+  idle_timeout: 30,
+  max_lifetime: 60 * 30,
+  max: 10,
+  connection: {
+    application_name: 'nextjs-Orkun',
+    statement_timeout: 60000,
+    query_timeout: 60000,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000
+  },
+  onnotice: () => {},
+  onparameter: () => {},
+  debug: (connection, query, parameters) => {
+    console.log('Query:', query);
+    console.log('Parameters:', parameters);
+  },
+  transform: {
+    undefined: null,
+  },
+  prepare: false
+});
 
 export async function fetchRevenue() {
   try {
